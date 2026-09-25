@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Activity, LayoutDashboard, FileText, LogOut } from 'lucide-react';
+import { Radar, LayoutDashboard, FileText, LogOut } from 'lucide-react';
 import { useAuth } from '../components/AuthProvider';
 import { motion, AnimatePresence } from 'framer-motion';
 import FloatingParticles from '../components/animations/FloatingParticles';
@@ -38,7 +38,7 @@ export default function MainLayout() {
             <Link to="/" className="flex items-center gap-2.5 group">
               <div className="relative">
                 <div className="absolute inset-0 bg-[#2457FF] blur-md opacity-30 group-hover:opacity-70 transition-opacity rounded-full" />
-                <Activity className="w-5 h-5 text-[#2457FF] relative z-10" />
+                <Radar className="w-5 h-5 text-[#2457FF] relative z-10" />
               </div>
               <span className="font-bold text-base tracking-tight text-white">
                 Agri<span className="text-[#2457FF]">Shield</span>

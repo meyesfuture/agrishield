@@ -89,6 +89,39 @@ export default function AlertDetail() {
   const history = alert?.history || [];
   const timeline = alert?.timeline || [];
 
+  const handleExport = () => {
+    if (!alert) return;
+    const content = `AgriShield Investigation Report
+=============================
+Alert ID: ${alert.id}
+Generated: ${new Date().toLocaleString()}
+
+LOCATION: ${alert.location_name}
+COMMODITY: ${alert.commodity_name}
+SEVERITY: ${alert.severity.toUpperCase()}
+RISK SCORE: ${alert.risk_score?.toFixed(1) || 'N/A'}/100
+
+EXPLANATION:
+${alert.explanation}
+
+RECOMMENDED ACTION:
+${alert.recommended_action || 'None'}
+
+SIGNALS ANALYZED:
+${signals.map((s: any) => `- ${s.signal_type.toUpperCase()}: Score ${Math.round(s.normalized_score || 0)} (Weight: ${s.weight})`).join('\n')}
+`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `AgriShield_Report_${alert.id}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+
   if (loading || !showData) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] max-w-sm mx-auto">
@@ -173,7 +206,7 @@ export default function AlertDetail() {
                 <CometDial value={alert.risk_score || 0} label="Anomaly Score" size={130} thickness={5} />
                 <div className="flex flex-col gap-1">
                   <button
-                    onClick={() => window.print()}
+                    onClick={handleExport}
                     className="bg-white text-black px-4 py-2 text-xs font-bold rounded hover:bg-gray-200 transition-colors print:hidden"
                   >
                     Export Report
