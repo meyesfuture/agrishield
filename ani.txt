@@ -1,0 +1,123 @@
+import { Download04Icon, Rocket01Icon, Settings02Icon } from '@hugeicons/core-free-icons';
+import BranchedMenu from './BranchedMenu';
+
+<BranchedMenu
+  items={[
+    {
+      label: 'Getting started',
+      children: [
+        { value: 'install', label: 'Installation', icon: Download04Icon },
+        { value: 'quick', label: 'Quick start', icon: Rocket01Icon },
+        { value: 'config', label: 'Configuration', icon: Settings02Icon }
+      ]
+    },
+    { label: 'Components', children: [{ value: 'buttons', label: 'Buttons' }, { value: 'overlays', label: 'Overlays' }] }
+  ]}
+  defaultOpen={[0]}
+  defaultActive="quick"
+  onSelect={(value, item) => navigate(value)}
+  color="#f5f5f5"
+  accentColor="#f5f5f5"
+  lineColor="#3f3f46"
+  width={240}
+  rowHeight={36}
+  indent={40}
+  trunk={14}
+  radius={10}
+  lineWidth={1.5}
+  fontSize={14}
+  drawDuration={400}
+  foldDuration={300}
+/>
+
+..................................................................
+
+
+import CometDial from './CometDial';
+
+<CometDial
+  defaultValue={62}
+  min={0}
+  max={100}
+  step={1}
+  unit="percent"
+  label="Level"
+  accent="#f5f5f5"
+  ink="#fdfdfd"
+  size={250}
+  sweep={320}
+  thickness={5}
+  speed={25}
+  tapBounce={0.2}
+  flickBounce={0.1}
+  momentum={1}
+  cometReach={180}
+  cometWidth={12}
+  onChange={value => console.log(value)}
+  onChangeEnd={(value, { velocity, bounce }) => console.log('settling toward', value, velocity, bounce)}
+  disabled={false}
+/>
+
+
+............................................
+
+
+import GlideSelect from './GlideSelect';
+
+const formats = [
+  { value: 'png', label: 'PNG', tag: 'Lossless' },
+  { value: 'jpg', label: 'JPG', tag: 'Smallest' },
+  { value: 'webp', label: 'WebP', tag: 'Modern' },
+  { value: 'svg', label: 'SVG', tag: 'Vector' },
+  { value: 'pdf', label: 'PDF', tag: 'Print' }
+];
+
+<GlideSelect
+  options="formats"
+  defaultValue="png"
+  onChange={(value, option) => console.log(value, option)}
+  ariaLabel="Export format"
+  showTags
+  accentColor="#f5f5f5"
+  surfaceColor="#27272a"
+  highlightColor="#3f3f46"
+  textColor="#f5f5f5"
+  size="md"
+  radius={10}
+  menuWidth={176}
+  placement="bottom"
+  align="left"
+  popDuration={180}
+  glideDuration={220}
+  rememberPosition
+  disabled={false}
+/>
+
+
+..............................
+
+
+
+import ThoughtLine from './ThoughtLine';
+
+<ThoughtLine
+  working={isStreaming}
+  steps={['Reading the question', 'Searching your notes', 'Drafting an answer']}
+  label="Thinking…"
+  doneLabel="Thought for"
+  glyph="sparkle"
+  fontSize={16}
+  breathPeriod={1.6}
+  breathDepth={0.45}
+  settleDuration={350}
+  settleBlur={2}
+  collapsible
+  collapseOnSettle
+  showTimer
+  onSettle={seconds => console.log(`thought for ${seconds}s`)}
+/>
+
+
+
+
+

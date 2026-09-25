@@ -1,0 +1,48 @@
+{
+  "records": [
+    {
+      "state": "Maharashtra",
+      "district": "Nashik",
+      "market": "Lasalgaon",
+      "commodity": "Onion",
+      "variety": "Red",
+      "arrival_date": "24/09/2026",
+      "min_price": "1800",
+      "max_price": "2600",
+      "modal_price": "2200"
+    },
+    {
+      "state": "Maharashtra",
+      "district": "Nashik",
+      "market": "Lasalgaon",
+      "commodity": "Onion",
+      "variety": "Red",
+      "arrival_date": "25/09/2026",
+      "min_price": "1900",
+      "max_price": "3000",
+      "modal_price": "2800"
+    },
+    {
+      "state": "Maharashtra",
+      "district": "Pune",
+      "market": "Pune",
+      "commodity": "Tomato",
+      "variety": "Local",
+      "arrival_date": "24/09/2026",
+      "min_price": "1200",
+      "max_price": "1800",
+      "modal_price": "1500"
+    },
+    {
+      "state": "Maharashtra",
+      "district": "Pune",
+      "market": "Pune",
+      "commodity": "Tomato",
+      "variety": "Local",
+      "arrival_date": "25/09/2026",
+      "min_price": "1300",
+      "max_price": "1900",
+      "modal_price": "1600"
+    }
+  ]
+}

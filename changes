@@ -1,0 +1,90 @@
+──────
+  ## AgriShield: Complete Audit Report
+  ──────
+  ### 🔴 TOTAL BLUNDERS — Will crash or block your demo
+
+  1. Auth blocks the entire app.
+  App.tsx wraps every page in a ProtectedRoute that redirects to /login if there's no Supabase session. Your Supabase URL is a real project     
+  (ixtgiczwnmjjfjekloda.supabase.co) but there are no users created. The first thing a judge sees is a login screen. They can't get in. The     
+  whole demo is blocked behind a wall.
+
+  2. MarketObservation has no location_id.
+  The model stores market_id, but main.py line 97 queries using MarketObservation.location_id which doesn't exist on the model. The history     
+  chart in the Alert Detail page will throw a 500 error or return empty every single time. This is a silent database crash.
+
+  3. get_alert in main.py will crash on missing alerts.
+  Line 74: alert, location, commodity = db.query(...).first() — if .first() returns None, this unpacking crashes Python with a TypeError.       
+  There's no null check. Any invalid URL like /alert/999 crashes the server.
+
+  4. The recommended_action field is never set by the engine.
+  engine.py never assigns alert.recommended_action. So alert.recommended_action in the UI renders as blank/undefined. The entire "Recommended   
+  Action" black card on the detail page is empty.
+
+  5. The explanation is auto-generated garbage.
+  Line 171: "Anomaly score 84.0. Based on 3 signals." — this is what judges will read. It tells them nothing meaningful. It is not a
+  demonstration of intelligence.
+  ──────
+  ### 🟠 MAJOR ISSUES — Broken features that will embarrass you
+  6. Auth is connected to a real Supabase project but with no database schema.
+  The backend .env has DATABASE_URL=sqlite:///./agrishield.db (local SQLite). The frontend connects to real Supabase auth. These two systems    
+  are completely disconnected. The JWT from Supabase is never verified by FastAPI (the auth.py verify_token function exists but is not
+  applied to any route). Auth is both broken AND pointless.
+
+  7. The AlertSignal join in main.py is fragile.
+  The signals join in get_alerts (line 61) does from app.models import AlertSignal inside the loop. This re-imports on every iteration. More    
+  importantly, if seed.py is re-run (which drops and recreates all tables), the AlertSignal table is cleared but signals are regenerated from   
+  scratch — the alert IDs won't match the old signal IDs, causing the Overview cards to show empty bars.
+
+  8. The Map component has no fallback when latitude/longitude is null.
+  seed.py gives locations real coordinates, but if any location has null, Leaflet crashes the entire React app with an unhandled error. There   
+  is a conditional render but Leaflet's map container itself can break.
+
+  9. The ingest_news.py / ingest_satellite.py scripts require API keys that you don't have.
+  In DEMO_MODE=True, ingest_ogd.py falls back to fixtures. But checking ingest_news.py — it requires a GEMINI_API_KEY. DEMO_MODE is not
+  consistently checked in all three scripts. If a judge or you run run_all_ingestions.py, it will crash with a missing key error.
+  10. seed.py has a bug: arrival_quantity is random 500–1000 for ALL locations including the "anomaly" one.
+  The anomaly was only seeded on price and satellite signals for Nashik Onion. The arrival_quantity on the anomaly days is still random-        
+  normal. The engine's arrival signal for Nashik Onion will show no anomaly, which contradicts the price spike. The story the dashboard tells   
+  is internally inconsistent.
+  ──────
+  ### 🟡 MODERATE ISSUES — Things that look broken or confuse judges
+
+  11. Loading states are just "Loading..." plain text.
+  The loading spinner is <div className="text-primary text-xl">Loading...</div>. On a white background with no animation, this looks like a     
+  crashed page.
+  12. Alert cards show risk_score.toFixed(1) but some alerts will have risk_score = null.
+  For location/commodity combos with no data, evaluate_alert returns None. Those alerts are never inserted. But if the data is partially        
+  there, risk_score could be 0, which .toFixed(1) renders as "0.0" — confusing.
+
+  13. The Methodology page is static text with no live numbers.
+  There are no real numbers from your actual engine run. No "In our test, Nashik Onion reached 84.2 with price deviation of +27%." It's just    
+  generic description. It's a missed opportunity to wow judges with real evidence.
+
+  14. mockData.ts is still imported in AlertDetail.tsx (even though mockHistory/mockTimeline were removed, the file still exists and is
+  technically dead code).
+  15. The "Demo Mode" badge in the nav says "Demo Mode" always, regardless of the .env flag.
+  It never actually reads DEMO_MODE from the backend.
+
+  16. The recommended_action field in seed.py and engine.py is never populated, so the bold "Recommended Action" card on every Alert Detail     
+  is completely blank.
+  ──────
+  ### 🟢 WHAT ACTUALLY WORKS (Don't Touch)
+
+  • The engine.py math is solid — deviation, normalization, weight renormalization, consistency score.
+  • seed.py generates a believable anomaly for Nashik Onion correctly for price and satellite.
+  • The Overview.tsx accordion expand/collapse with signal bars is sharp and works well.
+  • npm run build compiles with zero TypeScript errors.
+  • Methodology.tsx content is accurate and professionally written.
+  • The Map component displays correctly when coordinates exist.
+  • The database schema (models.py) is well-designed and clean.
+  ──────
+  ### The Minimum Viable Fix List to Win
+
+  If you do only these things, the project goes from "crashy prototype" to "impressive demo":
+
+  1. Remove auth entirely or bypass it for the demo (one line change — hardcode session = true).
+  2. Fix the MarketObservation.location_id query in main.py (join through Market table instead).
+  3. Fix the .first() crash in get_alert with a null check.
+  4. Add real recommended_action and explanation text in engine.py based on which signals fired.
+  5. Fix arrival_quantity in seed.py to show a drop during the anomaly period for Nashik Onion.
+  6. Add a loading spinner (one Tailwind class).
