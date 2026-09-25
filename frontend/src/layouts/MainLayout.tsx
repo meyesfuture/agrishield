@@ -1,79 +1,106 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Activity, LayoutDashboard, FileText, LogOut } from 'lucide-react';
 import { useAuth } from '../components/AuthProvider';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import FloatingParticles from '../components/animations/FloatingParticles';
+
+const NAV = [
+  { to: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/methodology', label: 'Methodology', icon: FileText },
+];
 
 export default function MainLayout() {
   const location = useLocation();
   const { signOut, user } = useAuth();
 
   return (
-    <div className="min-h-screen flex flex-col relative z-0">
-      <header className="bg-[#111111]/80 backdrop-blur-md border-b border-[#27272A] sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+    <div className="min-h-screen flex flex-col relative z-0 bg-[#000000]">
+      {/* Global particle background */}
+      <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
+        <FloatingParticles count={35} />
+      </div>
+
+      {/* Grid dot background */}
+      <div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          zIndex: 0,
+          backgroundImage:
+            'radial-gradient(circle, rgba(36,87,255,0.12) 1px, transparent 1px)',
+          backgroundSize: '32px 32px',
+        }}
+      />
+
+      {/* Nav */}
+      <header className="bg-[#000000]/80 backdrop-blur-md border-b border-[#27272A] sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <Link to="/" className="flex items-center gap-2 group">
+            <Link to="/" className="flex items-center gap-2.5 group">
               <div className="relative">
-                <div className="absolute inset-0 bg-[#2457FF] blur-md opacity-20 group-hover:opacity-60 transition-opacity rounded-full" />
-                <Activity className="w-6 h-6 text-[#2457FF] relative z-10" />
+                <div className="absolute inset-0 bg-[#2457FF] blur-md opacity-30 group-hover:opacity-70 transition-opacity rounded-full" />
+                <Activity className="w-5 h-5 text-[#2457FF] relative z-10" />
               </div>
-              <span className="font-bold text-lg tracking-tight text-white group-hover:text-gray-200 transition-colors">AgriShield</span>
+              <span className="font-bold text-base tracking-tight text-white">
+                Agri<span className="text-[#2457FF]">Shield</span>
+              </span>
             </Link>
-            
-            <nav className="flex items-center gap-6">
-              <Link 
-                to="/" 
-                className={`flex items-center gap-2 text-sm font-medium transition-colors ${
-                  location.pathname === '/' ? 'text-white' : 'text-secondary hover:text-white'
-                }`}
-              >
-                <LayoutDashboard className="w-4 h-4" />
-                Dashboard
-                {location.pathname === '/' && (
-                  <motion.div layoutId="nav-indicator" className="absolute bottom-0 h-0.5 bg-[#2457FF] w-20 shadow-[0_-2px_8px_rgba(36,87,255,0.8)]" />
-                )}
-              </Link>
-              <Link 
-                to="/methodology" 
-                className={`flex items-center gap-2 text-sm font-medium transition-colors ${
-                  location.pathname === '/methodology' ? 'text-white' : 'text-secondary hover:text-white'
-                }`}
-              >
-                <FileText className="w-4 h-4" />
-                Methodology
-                {location.pathname === '/methodology' && (
-                  <motion.div layoutId="nav-indicator" className="absolute bottom-0 h-0.5 bg-[#2457FF] w-24 shadow-[0_-2px_8px_rgba(36,87,255,0.8)]" />
-                )}
-              </Link>
+
+            <nav className="flex items-center gap-1">
+              {NAV.map(({ to, label, icon: Icon }) => {
+                const active =
+                  to === '/'
+                    ? location.pathname === '/'
+                    : location.pathname.startsWith(to);
+                return (
+                  <Link
+                    key={to}
+                    to={to}
+                    className={`relative flex items-center gap-2 text-sm font-medium px-3 py-1.5 rounded transition-colors ${
+                      active ? 'text-white' : 'text-[#71717A] hover:text-white'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {label}
+                    {active && (
+                      <motion.div
+                        layoutId="nav-pill"
+                        className="absolute inset-0 bg-[#1A1A1A] border border-[#27272A] rounded"
+                        style={{ zIndex: -1 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                      />
+                    )}
+                  </Link>
+                );
+              })}
             </nav>
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             {import.meta.env.VITE_DEMO_MODE === 'true' && (
-              <div className="text-[10px] uppercase tracking-widest font-mono text-[#2457FF] flex items-center gap-2 bg-[#1A1A1A] px-3 py-1.5 rounded border border-[#27272A]">
+              <div className="text-[10px] uppercase tracking-widest font-mono text-[#2457FF] flex items-center gap-2 bg-[#0a0a1a] px-3 py-1.5 rounded border border-[#2457FF]/30">
                 <div className="w-1.5 h-1.5 rounded-full bg-[#2457FF] animate-pulse shadow-[0_0_8px_rgba(36,87,255,1)]" />
                 <span>Live Feed</span>
               </div>
             )}
-            
-            <div className="flex items-center gap-4 border-l border-[#27272A] pl-6">
-              <span className="text-sm text-secondary truncate max-w-[150px] font-mono text-xs">
+            <div className="flex items-center gap-3 border-l border-[#27272A] pl-4">
+              <span className="text-xs text-[#71717A] truncate max-w-[140px] font-mono">
                 {user?.email}
               </span>
-              <button 
+              <button
                 onClick={signOut}
-                className="text-secondary hover:text-white transition-colors flex items-center gap-2 text-sm font-medium"
+                className="text-[#71717A] hover:text-white transition-colors flex items-center gap-1.5 text-sm"
               >
                 <LogOut className="w-4 h-4" />
-                <span className="sr-only sm:not-sr-only">Sign Out</span>
               </button>
             </div>
           </div>
         </div>
       </header>
-      
-      <main className="flex-1 max-w-7xl mx-auto px-4 py-8 w-full relative z-10">
-        <Outlet />
+
+      <main className="flex-1 max-w-7xl mx-auto px-6 py-10 w-full relative z-10">
+        <AnimatePresence mode="wait">
+          <Outlet />
+        </AnimatePresence>
       </main>
     </div>
   );

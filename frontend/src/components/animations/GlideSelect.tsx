@@ -14,7 +14,7 @@ export default function GlideSelect({
   value,
   onChange,
   ariaLabel,
-  size = 'md'
+  size: _size = 'md'
 }: GlideSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredValue, setHoveredValue] = useState<string | null>(null);
