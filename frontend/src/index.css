@@ -40,3 +40,12 @@
     @apply text-lg font-medium text-white;
   }
 }
+
+
+/* Dark mode map filter for Leaflet */
+.map-dark .leaflet-layer,
+.map-dark .leaflet-control-zoom-in,
+.map-dark .leaflet-control-zoom-out,
+.map-dark .leaflet-control-attribution {
+  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}

@@ -41,10 +41,11 @@ export default function Map({ alerts }: MapProps) {
   
   return (
     <div className="h-full w-full rounded-lg overflow-hidden border-0">
-      <MapContainer center={center} zoom={4} scrollWheelZoom={false} className="h-full w-full" style={{ background: '#0a0a0a' }}>
+      <MapContainer center={center} zoom={4} scrollWheelZoom={false} className="h-full w-full map-dark" style={{ background: '#0a0a0a' }}>
         <TileLayer
-          attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          className="map-tiles"
         />
         <DynamicBounds alerts={alerts} />
         {alerts.map((alert) => (
