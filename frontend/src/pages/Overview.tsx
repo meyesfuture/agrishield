@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo, Suspense } from 'react';
 import { Link } from 'react-router-dom';
-import { AlertTriangle, MapPin, Package, ShieldAlert, ArrowRight, TrendingUp } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { AlertTriangle, MapPin, Package, ShieldAlert, ArrowRight, TrendingUp, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Map from '../components/Map';
 import GlideSelect from '../components/animations/GlideSelect';
 import ScrollReveal from '../components/animations/ScrollReveal';
@@ -11,6 +11,7 @@ import AnimatedCounter from '../components/animations/AnimatedCounter';
 import { Canvas } from '@react-three/fiber';
 import Globe from '../canvas/Globe';
 import { OrbitControls } from '@react-three/drei';
+import SignalBars from '../components/SignalBars';
 
 function KPICard({
   label,
@@ -71,6 +72,7 @@ export default function Overview() {
   });
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [selectedAlert, setSelectedAlert] = useState<any>(null);
 
   useEffect(() => {
     Promise.all([
@@ -210,13 +212,9 @@ export default function Overview() {
                     borderColor: '#2457FF',
                     transition: { duration: 0.2 },
                   }}
+                  onClick={() => setSelectedAlert(alert)}
                   className="card p-6 flex flex-col justify-between group relative cursor-pointer h-full border border-[#27272A] rounded"
                 >
-                  <Link
-                    to={`/alert/${alert.id}`}
-                    className="absolute inset-0 z-10"
-                    aria-label={`View ${alert.commodity_name}`}
-                  />
 
                   {/* glow on hover */}
                   <div className="absolute inset-0 bg-gradient-to-br from-[#2457FF]/0 to-[#2457FF]/0 group-hover:from-[#2457FF]/5 group-hover:to-transparent transition-all duration-500 rounded" />
@@ -272,6 +270,71 @@ export default function Overview() {
           </StaggerList>
         </section>
       </div>
+
+      <AnimatePresence>
+        {selectedAlert && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={() => setSelectedAlert(null)}
+          >
+            <motion.div
+              layoutId={`card-${selectedAlert.id}`}
+              className="bg-[#0a0a0a] border border-[#27272A] w-full max-w-2xl rounded-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6 border-b border-[#27272A] flex items-start justify-between relative bg-[#050508]">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#2457FF]/5 to-transparent pointer-events-none" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h2 className="text-3xl font-bold text-white">{selectedAlert.commodity_name}</h2>
+                    <span className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded border ${
+                      selectedAlert.severity === 'critical'
+                        ? 'bg-red-900/20 text-red-400 border-red-900/50'
+                        : 'bg-orange-900/20 text-orange-400 border-orange-900/50'
+                    }`}>
+                      {selectedAlert.severity}
+                    </span>
+                  </div>
+                  <p className="text-[#A1A1AA] font-mono text-xs uppercase tracking-wider">{selectedAlert.location_name}</p>
+                </div>
+                <button 
+                  onClick={() => setSelectedAlert(null)}
+                  className="p-2 text-[#71717A] hover:text-white transition-colors relative z-10"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="p-6 overflow-y-auto">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="text-[10px] font-mono text-[#71717A] uppercase tracking-widest">Risk Score</div>
+                  <div className="flex items-end gap-1">
+                    <span className="text-4xl font-mono text-white font-bold leading-none">{selectedAlert.risk_score?.toFixed(1) || 'N/A'}</span>
+                    <span className="text-[#71717A] font-mono text-sm mb-1">/100</span>
+                  </div>
+                </div>
+                
+                <div className="bg-[#050508] border border-[#27272A] rounded p-6">
+                  <div className="text-[10px] font-mono text-[#71717A] uppercase tracking-widest mb-4">Signal Breakdown</div>
+                  <SignalBars signals={selectedAlert.signals || []} />
+                </div>
+              </div>
+              
+              <div className="p-6 border-t border-[#27272A] flex justify-end bg-[#050508]">
+                <Link
+                  to={`/alert/${selectedAlert.id}`}
+                  className="bg-[#2457FF] text-white px-6 py-2.5 rounded font-bold text-sm hover:bg-[#2457FF]/90 transition-colors shadow-[0_0_15px_rgba(36,87,255,0.3)] flex items-center gap-2"
+                >
+                  View Full Investigation <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </PageTransition>
   );
 }

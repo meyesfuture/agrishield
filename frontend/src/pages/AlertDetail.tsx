@@ -13,6 +13,8 @@ import ScrollReveal from '../components/animations/ScrollReveal';
 
 import PageTransition from '../components/animations/PageTransition';
 import CropModel from '../canvas/CropModel';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 function EvidenceCard({ title, children, delay = 0 }: { title: string; children: React.ReactNode; delay?: number }) {
   return (
@@ -91,34 +93,73 @@ export default function AlertDetail() {
 
   const handleExport = () => {
     if (!alert) return;
-    const content = `AgriShield Investigation Report
-=============================
-Alert ID: ${alert.id}
-Generated: ${new Date().toLocaleString()}
-
-LOCATION: ${alert.location_name}
-COMMODITY: ${alert.commodity_name}
-SEVERITY: ${alert.severity.toUpperCase()}
-RISK SCORE: ${alert.risk_score?.toFixed(1) || 'N/A'}/100
-
-EXPLANATION:
-${alert.explanation}
-
-RECOMMENDED ACTION:
-${alert.recommended_action || 'None'}
-
-SIGNALS ANALYZED:
-${signals.map((s: any) => `- ${s.signal_type.toUpperCase()}: Score ${Math.round(s.normalized_score || 0)} (Weight: ${s.weight})`).join('\n')}
-`;
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `AgriShield_Report_${alert.id}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(22);
+    doc.setTextColor(36, 87, 255);
+    doc.text('AgriShield Investigation Report', 14, 22);
+    
+    // Metadata
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Alert ID: ${alert.id}`, 14, 32);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 38);
+    
+    doc.setDrawColor(220, 220, 220);
+    doc.line(14, 44, 196, 44);
+    
+    // Summary
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Alert Overview', 14, 56);
+    
+    doc.setFontSize(11);
+    doc.text(`Location: ${alert.location_name}`, 14, 66);
+    doc.text(`Commodity: ${alert.commodity_name}`, 14, 72);
+    doc.text(`Severity: ${alert.severity.toUpperCase()}`, 14, 78);
+    doc.text(`Risk Score: ${alert.risk_score?.toFixed(1) || 'N/A'}/100`, 14, 84);
+    
+    // Explanation
+    doc.setFontSize(14);
+    doc.text('Explanation', 14, 98);
+    doc.setFontSize(11);
+    doc.setTextColor(60, 60, 60);
+    const splitExplanation = doc.splitTextToSize(alert.explanation || 'No explanation provided.', 180);
+    doc.text(splitExplanation, 14, 106);
+    
+    // Action
+    const nextY = 106 + splitExplanation.length * 6 + 8;
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Recommended Action', 14, nextY);
+    doc.setFontSize(11);
+    doc.setTextColor(60, 60, 60);
+    const splitAction = doc.splitTextToSize(alert.recommended_action || 'None', 180);
+    doc.text(splitAction, 14, nextY + 8);
+    
+    // Table
+    const tableY = nextY + 8 + splitAction.length * 6 + 12;
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Signals Analyzed', 14, tableY);
+    
+    const tableData = signals.map((s: any) => [
+      s.signal_type.toUpperCase(),
+      Math.round(s.normalized_score || 0).toString(),
+      s.weight.toString()
+    ]);
+    
+    (doc as any).autoTable({
+      startY: tableY + 6,
+      head: [['Signal Type', 'Score', 'Weight']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { fillColor: [36, 87, 255] }
+    });
+    
+    doc.save(`AgriShield_Report_${alert.id}.pdf`);
   };
 
 
